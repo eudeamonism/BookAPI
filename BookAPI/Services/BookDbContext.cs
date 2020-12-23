@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BookApiProject.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,21 @@ namespace BookApiProject.Services
     {
         public BookDbContext(DbContextOptions<DbContext>options)
             :base(options)
+        {
+            Database.Migrate(); //Will create a table for each class
+        }
+
+        public virtual DbSet<Book> Books { get; set; }
+        public virtual DbSet<Author> Authors { get; set; }
+        public virtual DbSet<Review> Reviews { get; set; }
+        public virtual DbSet<Reviewer> Reviewers { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Country> Country { get; set; }
+        public virtual DbSet<BookAuthor> BookAuthors { get; set; }
+        public virtual DbSet<BookCategory> BookCategories { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+        }
     }
 }
