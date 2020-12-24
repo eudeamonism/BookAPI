@@ -1,6 +1,8 @@
+using BookApiProject.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +26,7 @@ namespace BookAPI
         {
             services.AddMvc();
             var connectionString = Configuration["connectionStrings:bookDbConnectionString"];
+            services.AddDbContext<BookDbContext>(c => c.UseSqlServer(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
