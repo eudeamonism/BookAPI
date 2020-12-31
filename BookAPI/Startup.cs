@@ -38,7 +38,7 @@ namespace BookAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            context.SeedDataContext();
+            //context.SeedDataContext();
 
             app.UseRouting();
 
