@@ -1,11 +1,17 @@
-﻿using System;
+﻿using BookApiProject.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace BookApiProject.Services
 {
-    public class ICategoryRepository
+    public interface ICategoryRepository
     {
+        ICollection<Category> GetCategories();
+        Category GetCategory(int categoryId);
+        ICollection<Category> GetCategoriesForABook(int bookId);
+        ICollection<Book> GetAllBooksForCategory(int categoryId);
+        bool CategoryExists(int categoryId);
     }
 }
