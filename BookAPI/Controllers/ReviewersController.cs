@@ -10,7 +10,7 @@ namespace BookApiProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ReviewersController : Controller 
+    public class ReviewersController : Controller
     {
         private IReviewerRepository _reviewerRepository;
         public ReviewersController(IReviewerRepository reviewerRepository)
@@ -40,6 +40,30 @@ namespace BookApiProject.Controllers
             }
             return Ok(reviewersDto);
 
+        }
+        //api/reviewer/reviewerId
+        [HttpGet("{reviewerId}")]
+        [ProducesResponseType(200, Type = typeof(ReviewerDto))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetReviewer (int reviewerId)
+        {
+            if (!_reviewerRepository.ReviewerExists(reviewerId))
+                return NotFound();
+
+            var reviewer = _reviewerRepository.GetReviewer(reviewerId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var reviewerDto = new ReviewerDto()
+            {
+                Id = reviewer.Id,
+                FirstName = reviewer.FirstName,
+                LastName = reviewer.LastName
+
+            };
+            return Ok(reviewerDto);
         }
     }
 }
