@@ -21,7 +21,7 @@ namespace BookApiProject.Controllers
         }
         //api/reviewers
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewerDto>))]
         [ProducesResponseType(400)]
         public IActionResult GetReviewers()
         {
