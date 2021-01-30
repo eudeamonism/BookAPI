@@ -69,5 +69,33 @@ namespace BookApiProject.Controllers
             };
             return Ok(reviewDto);
         }
+        //api/reviews/books/bookId
+        [HttpGet("books/{bookId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetReviewsForABook(int bookId)
+        {
+            //To Do - validate book
+
+            var reviews = _reviewRepository.GetReviewsOfABook(bookId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var reviewsDto = new List<ReviewDto>();
+            foreach (var review in reviews)
+            {
+                reviewsDto.Add(new ReviewDto()
+                {
+                    Id = review.Id,
+                    Headline = review.Headline,
+                    Rating = review.Rating,
+                    ReviewText = review.ReviewText
+                });
+            }
+            return Ok(reviewsDto);
+        }
     }
+
 }
