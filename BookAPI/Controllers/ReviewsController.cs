@@ -96,6 +96,30 @@ namespace BookApiProject.Controllers
             }
             return Ok(reviewsDto);
         }
+        //api/reviews/reviewId/book
+        [HttpGet("{reviewId}/book")]
+        [ProducesResponseType(200, Type = typeof(BookDto))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetBookOfAReview(int reviewId)
+        {
+            if (!_reviewRepository.ReviewExists(reviewId))
+                return NotFound();
+
+            var book = _reviewRepository.GetBookOfAReview(reviewId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var bookDto = new BookDto()
+            {
+               Id = book.Id,
+               Title = book.Title,
+               Isbn = book.Isbn,
+               DatePublished = book.DatePublished
+            };
+            return Ok(bookDto);
+        }
     }
 
 }
