@@ -46,7 +46,7 @@ namespace BookApiProject.Controllers
             return Ok(reviewsDto);
 
         }
-        //api/reviews/reviewerId
+        //api/reviews/reviewId
         [HttpGet("{reviewId}")]
         [ProducesResponseType(200, Type = typeof(ReviewDto))]
         [ProducesResponseType(400)]
