@@ -94,5 +94,32 @@ namespace BookApiProject.Controllers
             }
             return Ok(booksDto);
         }
+        //api/authors/books/bookId
+        [HttpGet("books/{bookId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetAuthorsOfABook(int bookId)
+
+        {
+           //To DO Validate BookId
+
+            var authors = _authorRepository.GetAuthorsOfABook(bookId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var authorsDto = new List<AuthorDto>();
+            foreach(var author in authors)
+            {
+                authorsDto.Add(new AuthorDto
+                {
+                    Id = author.Id,
+                    FirstName = author.FirstName,
+                    LastName = author.LastName
+                });
+            }
+            return Ok(authorsDto);
+        }
     }
 }
