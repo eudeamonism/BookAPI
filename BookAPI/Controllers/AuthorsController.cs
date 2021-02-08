@@ -13,9 +13,11 @@ namespace BookApiProject.Controllers
     public class AuthorsController : Controller
     {
         private IAuthorRepository _authorRepository;
-        public AuthorsController(IAuthorRepository authorRepository)
+        private IBookRepository _bookRepository;
+        public AuthorsController(IAuthorRepository authorRepository, IBookRepository bookRepository)
         {
             _authorRepository = authorRepository;
+            _bookRepository = bookRepository;
         }
         //api/authors
         [HttpGet]
@@ -94,6 +96,7 @@ namespace BookApiProject.Controllers
             }
             return Ok(booksDto);
         }
+        //To Do - Retest this action after book interface is implemented
         //api/authors/books/bookId
         [HttpGet("books/{bookId}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
@@ -102,7 +105,8 @@ namespace BookApiProject.Controllers
         public IActionResult GetAuthorsOfABook(int bookId)
 
         {
-           //To DO Validate BookId
+            if (!_bookRepository.BookExists(bookId))
+                return NotFound();
 
             var authors = _authorRepository.GetAuthorsOfABook(bookId);
 
