@@ -1,4 +1,5 @@
 ﻿using BookApiProject.Dtos;
+using BookApiProject.Models;
 using BookApiProject.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -44,7 +45,7 @@ namespace BookApiProject.Controllers
         }
 
         //api/countries/countryId
-        [HttpGet("{countryId}")]
+        [HttpGet("{countryId}", Name ="GetCountry")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
@@ -120,6 +121,38 @@ namespace BookApiProject.Controllers
                 });
             }
             return Ok(authorsDto);
+        }
+        //api/countries
+        [HttpPost]
+        [ProducesResponseType(201, Type =  typeof(Country))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateCountry([FromBody]Country countryToCreate)
+        {
+            if (countryToCreate == null)
+                    return BadRequest(ModelState);
+
+            var country = _countryRepository.GetCountries()
+                .Where(c => c.Name.Trim().ToUpper() == countryToCreate.Name.Trim().ToUpper())
+                .FirstOrDefault();
+
+            if(country != null)
+            {
+                ModelState.AddModelError("", $"Country {countryToCreate.Name} already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if(!_countryRepository.CreateCountry(countryToCreate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving {countryToCreate.Name}");
+                return StatusCode(500, ModelState);
+            }
+
+            return CreatedAtRoute("GetCountry", new { countryId = countryToCreate }, countryToCreate);
         }
 
     }
