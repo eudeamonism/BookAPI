@@ -154,7 +154,41 @@ namespace BookApiProject.Controllers
 
             return CreatedAtRoute("GetCountry", new { countryId = countryToCreate }, countryToCreate);
         }
+        //api/countries/countryId
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(204)] //no content
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateCountry(int countryId, [FromBody]Country updatedCountryInfo)
+        {
+            if (updatedCountryInfo == null)
+                return BadRequest(ModelState);
 
+            if (countryId != updatedCountryInfo.Id)
+                return BadRequest(ModelState);
+
+            if (!_countryRepository.CountryExists(countryId))
+                return NotFound();
+
+            if (_countryRepository.IsDuplicateCountryName(countryId, updatedCountryInfo.Name))
+            {
+                ModelState.AddModelError("", $"Country {updatedCountryInfo.Name} already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_countryRepository.UpdateCountry(updatedCountryInfo))
+            {
+                ModelState.AddModelError("", $"Something went wrong updating {updatedCountryInfo.Name}");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
     }
 
