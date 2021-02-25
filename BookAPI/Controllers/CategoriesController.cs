@@ -1,4 +1,5 @@
 ﻿using BookApiProject.Dtos;
+using BookApiProject.Models;
 using BookApiProject.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -43,6 +44,30 @@ namespace BookApiProject.Controllers
 
             return Ok(categoriesDto);
         }
+
+        //api/categories/categoryId
+        [HttpDelete("{categoryId}", Name = "GetCategory")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200,Type = typeof(CategoryDto))]
+        public IActionResult GetCategory(int categoryId)
+        {
+            if (!_categoryRepository.CategoryExists(categoryId))
+                return NotFound();
+
+            var category = _categoryRepository.GetCategory(categoryId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var categoryDto = new CategoryDto()
+            {
+                Id = category.Id,
+                Name = category.Name
+            };
+            return Ok(categoryDto);
+        }
+
         //api/categories/books/bookId
         [HttpGet("books/{bookId}")]
         [ProducesResponseType(400)]
@@ -103,6 +128,38 @@ namespace BookApiProject.Controllers
                 });
             }
             return Ok(booksDto);
+        }
+        //api/categories/
+        [HttpPost]
+        [ProducesResponseType(201, Type = typeof(Category))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateCategory([FromBody] Category categoryToCreate)
+        {
+            if (categoryToCreate == null)
+                return BadRequest(ModelState);
+
+            var category = _categoryRepository.GetCategories()
+                .Where(c => c.Name.Trim().ToUpper() == categoryToCreate.Name.Trim().ToUpper())
+                .FirstOrDefault();
+
+            if (category != null)
+            {
+                ModelState.AddModelError("", $"Category {categoryToCreate.Name} already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_categoryRepository.CreateCategory(categoryToCreate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving {categoryToCreate.Name}");
+                return StatusCode(500, ModelState);
+            }
+
+            return CreatedAtRoute("GetCategory", new { categoryId = categoryToCreate }, categoryToCreate);
         }
     }
 }
