@@ -46,7 +46,7 @@ namespace BookApiProject.Controllers
         }
 
         //api/categories/categoryId
-        [HttpDelete("{categoryId}", Name = "GetCategory")]
+        [HttpGet("{categoryId}", Name = "GetCategory")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200,Type = typeof(CategoryDto))]
