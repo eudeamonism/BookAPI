@@ -38,17 +38,17 @@ namespace BookApiProject.Controllers
             {
                 reviewsDto.Add(new ReviewDto
                 {
-                   Id = review.Id,
-                   Headline = review.Headline,
-                   Rating = review.Rating,
-                   ReviewText = review.ReviewText
+                    Id = review.Id,
+                    Headline = review.Headline,
+                    Rating = review.Rating,
+                    ReviewText = review.ReviewText
                 });
             }
             return Ok(reviewsDto);
 
         }
         //api/reviews/reviewId
-        [HttpGet("{reviewId}", Name ="GetReview")]
+        [HttpGet("{reviewId}", Name = "GetReview")]
         [ProducesResponseType(200, Type = typeof(ReviewDto))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -117,10 +117,10 @@ namespace BookApiProject.Controllers
 
             var bookDto = new BookDto()
             {
-               Id = book.Id,
-               Title = book.Title,
-               Isbn = book.Isbn,
-               DatePublished = book.DatePublished
+                Id = book.Id,
+                Title = book.Title,
+                Isbn = book.Isbn,
+                DatePublished = book.DatePublished
             };
             return Ok(bookDto);
         }
@@ -158,6 +158,45 @@ namespace BookApiProject.Controllers
 
             return CreatedAtRoute("GetReview", new { reviewId = reviewToCreate.Id }, reviewToCreate);
         }
-    }
+        //api/reviews/reviewId
+        [HttpPut("{reviewId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateReview(int reviewId, [FromBody] Review reviewToUpdate)
+        {
+            if (reviewToUpdate == null)
+                return BadRequest(ModelState);
 
+            if (reviewId != reviewToUpdate.Id)
+                return BadRequest(ModelState);
+
+            if (!_reviewRepository.ReviewExists(reviewId))
+                ModelState.AddModelError("", "Review doesn't exist!");
+
+            if (!_reviewerRepository.ReviewerExists(reviewToUpdate.Reviewer.Id))
+                ModelState.AddModelError("", "Reviewer doesn't exist!");
+
+            if (!_bookRepository.BookExists(reviewToUpdate.Book.Id))
+                ModelState.AddModelError("", "Book doesn't exist!");
+
+            if (!ModelState.IsValid)
+                return StatusCode(404, ModelState);
+
+            reviewToUpdate.Book = _bookRepository.GetBook(reviewToUpdate.Book.Id);
+            reviewToUpdate.Reviewer = _reviewerRepository.GetReviewer(reviewToUpdate.Reviewer.Id);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_reviewRepository.UpdateReview(reviewToUpdate))
+            {
+                ModelState.AddModelError("", $"Something went wrong updating the review.");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+    }
 }
