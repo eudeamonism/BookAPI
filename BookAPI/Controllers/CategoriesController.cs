@@ -175,6 +175,13 @@ namespace BookApiProject.Controllers
 
             if (categoryId != updatedCategoryInfo.Id)
                 return BadRequest(ModelState);
+                return BadRequest(ModelState);
+                return BadRequest(ModelState);
+                return BadRequest(ModelState);
+                return BadRequest(ModelState);
+                return BadRequest(ModelState);
+                return BadRequest(ModelState);
+                return BadRequest(ModelState);
 
             if (!_categoryRepository.CategoryExists(categoryId))
                 return NotFound();
