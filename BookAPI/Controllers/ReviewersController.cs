@@ -1,4 +1,5 @@
 ﻿using BookApiProject.Dtos;
+using BookApiProject.Models;
 using BookApiProject.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -44,11 +45,11 @@ namespace BookApiProject.Controllers
 
         }
         //api/reviewer/reviewerId
-        [HttpGet("{reviewerId}")]
+        [HttpGet("{reviewerId}", Name ="GetReviewer")]
         [ProducesResponseType(200, Type = typeof(ReviewerDto))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetReviewer (int reviewerId)
+        public IActionResult GetReviewer(int reviewerId)
         {
             if (!_reviewerRepository.ReviewerExists(reviewerId))
                 return NotFound();
@@ -118,6 +119,28 @@ namespace BookApiProject.Controllers
                 LastName = reviewer.LastName
             };
             return Ok(reviewerDto);
+        }
+        //api/reviewers
+        [HttpPost]
+        [ProducesResponseType(201, Type = typeof(Reviewer))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateReviewer([FromBody] Reviewer reviewerToCreate)
+        {
+            if (reviewerToCreate == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_reviewerRepository.CreateReviewer(reviewerToCreate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving " +
+                    $"{reviewerToCreate.FirstName} {reviewerToCreate.LastName}");
+                return StatusCode(500, ModelState);
+            }
+
+            return CreatedAtRoute("GetReviewer", new { reviewerId = reviewerToCreate.Id }, reviewerToCreate);
         }
     }
 }
