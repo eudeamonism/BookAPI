@@ -142,5 +142,33 @@ namespace BookApiProject.Controllers
 
             return CreatedAtRoute("GetReviewer", new { reviewerId = reviewerToCreate.Id }, reviewerToCreate);
         }
+        //api/reviewers/reviewerId
+        [HttpPut("{reviewerId}")]
+        [ProducesResponseType(204)] //no content
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateReviewer(int reviewerId, [FromBody] Reviewer updatedReviewerInfo)
+        {
+            if (updatedReviewerInfo == null)
+                return BadRequest(ModelState);
+
+            if (reviewerId != updatedReviewerInfo.Id)
+                return BadRequest(ModelState);
+
+            if (!_reviewerRepository.ReviewerExists(reviewerId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_reviewerRepository.UpdateReviewer(updatedReviewerInfo))
+            {
+                ModelState.AddModelError("", $"Something went wrong updating {updatedReviewerInfo.FirstName} {updatedReviewerInfo.LastName}");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }
