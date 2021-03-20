@@ -187,6 +187,13 @@ namespace BookApiProject.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!_reviewRepository.DeleteReviews(reviewsToDelete.ToList()))
+            {
+                ModelState.AddModelError("", $"Something went wrong deleting reviews by " +
+                    $"{reviewerToDelete.FirstName} {reviewerToDelete.LastName}");
+                return StatusCode(500, ModelState);
+            }
+
             if (!_reviewerRepository.DeleteReviewer(reviewerToDelete))
             {
                 ModelState.AddModelError("", $"Something went wrong deleting " +
@@ -194,12 +201,7 @@ namespace BookApiProject.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            if (!_reviewRepository.DeleteReviews(reviewsToDelete.ToList()))
-            {
-                ModelState.AddModelError("", $"Something went wrong deleting reviews by " +
-                    $"{reviewerToDelete.FirstName} {reviewerToDelete.LastName}");
-                return StatusCode(500, ModelState);
-            }
+            
 
             return NoContent();
         }
