@@ -1,4 +1,5 @@
 ﻿using BookApiProject.Dtos;
+using BookApiProject.Models;
 using BookApiProject.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,10 +15,13 @@ namespace BookApiProject.Controllers
     {
         private IAuthorRepository _authorRepository;
         private IBookRepository _bookRepository;
-        public AuthorsController(IAuthorRepository authorRepository, IBookRepository bookRepository)
+        private ICountryRepository _countryRepository;
+        public AuthorsController(IAuthorRepository authorRepository, IBookRepository bookRepository,
+            ICountryRepository countryRepository)
         {
             _authorRepository = authorRepository;
             _bookRepository = bookRepository;
+            _countryRepository = countryRepository;
         }
         //api/authors
         [HttpGet]
@@ -44,7 +48,7 @@ namespace BookApiProject.Controllers
 
         }
         //api/authors/reviewerId
-        [HttpGet("{authorId}")]
+        [HttpGet("{authorId}", Name = "GetAuthor")]
         [ProducesResponseType(200, Type = typeof(AuthorDto))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -123,6 +127,36 @@ namespace BookApiProject.Controllers
                 });
             }
             return Ok(authorsDto);
+        }
+        //api/authors
+        [HttpPost]
+        [ProducesResponseType(201, Type = typeof(Author))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateAuthor([FromBody] Author authorToCreate)
+        {
+            if (authorToCreate == null)
+                return BadRequest(ModelState);
+
+            if (!_countryRepository.CountryExists(authorToCreate.Country.Id))
+            {
+                ModelState.AddModelError("", "Country doesn't exist!");
+                return StatusCode(404, ModelState);
+            }
+
+            authorToCreate.Country = _countryRepository.GetCountry(authorToCreate.Country.Id);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_authorRepository.CreateAuthor(authorToCreate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving the author{authorToCreate.FirstName}{authorToCreate.LastName}");
+                return StatusCode(500, ModelState);
+            }
+
+            return CreatedAtRoute("GetAuthor", new { authorId = authorToCreate.Id }, authorToCreate);
         }
     }
 }
