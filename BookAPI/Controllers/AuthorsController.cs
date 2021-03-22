@@ -158,5 +158,42 @@ namespace BookApiProject.Controllers
 
             return CreatedAtRoute("GetAuthor", new { authorId = authorToCreate.Id }, authorToCreate);
         }
+        //api/authors/authorid
+        [HttpPut("{authorId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateAuthor(int authorId, [FromBody] Author authorToUpdate)
+        {
+            if (authorToUpdate == null)
+                return BadRequest(ModelState);
+
+            if (authorId != authorToUpdate.Id)
+                return BadRequest(ModelState);
+
+            if (!_authorRepository.AuthorExists(authorId))
+                ModelState.AddModelError("", "Author doesn't exist!");
+
+            if (!_countryRepository.CountryExists(authorToUpdate.Country.Id))
+                ModelState.AddModelError("", "Country doesn't exist!");
+
+            if (!ModelState.IsValid)
+                return StatusCode(404, ModelState);
+
+            authorToUpdate.Country = _countryRepository.GetCountry(authorToUpdate.Country.Id);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_authorRepository.CreateAuthor(authorToUpdate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving the author{authorToUpdate.FirstName}" +
+                    $"{authorToUpdate.LastName}");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }
