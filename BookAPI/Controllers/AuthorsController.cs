@@ -186,7 +186,7 @@ namespace BookApiProject.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_authorRepository.CreateAuthor(authorToUpdate))
+            if (!_authorRepository.UpdateAuthor(authorToUpdate))
             {
                 ModelState.AddModelError("", $"Something went wrong saving the author{authorToUpdate.FirstName}" +
                     $"{authorToUpdate.LastName}");
