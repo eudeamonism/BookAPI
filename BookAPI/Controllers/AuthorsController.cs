@@ -195,5 +195,36 @@ namespace BookApiProject.Controllers
 
             return NoContent();
         }
+        //api/authors/authorId
+        [HttpDelete("{authorId}")]
+        [ProducesResponseType(204)] //no content
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteAuthor(int authorId)
+        {
+            if (!_authorRepository.AuthorExists(authorId))
+                return NotFound();
+
+            var authorToDelete = _authorRepository.GetAuthor(authorId);
+
+            if (_authorRepository.GetBooksByAuthor(authorId).Count() > 0)
+            {
+                ModelState.AddModelError("", $"Author {authorToDelete.FirstName}{authorToDelete.LastName}" +
+                    "cannot be deleted because it is associated with at least one book");
+                return StatusCode(409, ModelState);
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_authorRepository.DeleteAuthor(authorToDelete))
+            {
+                ModelState.AddModelError("", $"Something went wrong deleting {authorToDelete.FirstName}{authorToDelete.LastName}");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }
