@@ -23,6 +23,41 @@ namespace BookApiProject.Services
             return _bookDbContext.Books.Any(b => b.Isbn == bookIsbn);
         }
 
+        public bool CreateBook(List<int> authorsId, List<int> categoriesId, Book book)
+        {
+            var authors = _bookDbContext.Authors.Where(a => authorsId.Contains(a.Id)).ToList();
+            var categories = _bookDbContext.Categories.Where(c => categoriesId.Contains(c.Id)).ToList();
+
+            foreach(var author in authors)
+            {
+                var bookAuthor = new BookAuthor()
+                {
+                    Author = author,
+                    Book = book
+                };
+                _bookDbContext.Add(bookAuthor);
+            }
+
+            foreach (var category in categories)
+            {
+                var bookCategory = new BookCategory()
+                {
+                    Category = category,
+                    Book = book
+                };
+                _bookDbContext.Add(bookCategory);
+            }
+
+            _bookDbContext.Add(book);
+            return Save();
+        }
+
+        public Book DeleteBook(Book book)
+        {
+            _bookDbContext.Remove(book);
+            return Save();
+        }
+
         public Book GetBook(int bookId)
         {
             return _bookDbContext.Books.Where(b => b.Id == bookId).FirstOrDefault();
@@ -52,6 +87,17 @@ namespace BookApiProject.Services
             var book = _bookDbContext.Books.Where(b => b.Isbn.Trim().ToUpper() == bookIsbn.Trim().ToUpper() && b.Id != bookId);
 
             return book == null ? false : true;
+        }
+
+        public bool Save()
+        {
+            var saved = _bookDbContext.SaveChanges();
+            return saved >= 0 ? true : false;
+        }
+
+        public bool UpdateBook(List<int> authorsId, List<int> categoriesId, Book book)
+        {
+            throw new NotImplementedException();
         }
     }
 }
