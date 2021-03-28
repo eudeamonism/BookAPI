@@ -97,8 +97,39 @@ namespace BookApiProject.Services
 
         public bool UpdateBook(List<int> authorsId, List<int> categoriesId, Book book)
         {
-            throw new NotImplementedException();
+                var authors = _bookDbContext.Authors.Where(a => authorsId.Contains(a.Id)).ToList();
+                var categories = _bookDbContext.Categories.Where(c => categoriesId.Contains(c.Id)).ToList();
+
+            var bookAuthorsToDelete = _bookDbContext.BookAuthors.Where(b => b.BookId == book.Id);
+            var bookCategoriesToDelete = _bookDbContext.BookCategories.Where(b => b.BookId == book.Id);
+
+            _bookDbContext.RemoveRange(bookAuthorsToDelete);
+            _bookDbContext.RemoveRange(bookCategoriesToDelete);
+
+            foreach (var author in authors)
+                {
+                    var bookAuthor = new BookAuthor()
+                    {
+                        Author = author,
+                        Book = book
+                    };
+                    _bookDbContext.Add(bookAuthor);
+                }
+
+                foreach (var category in categories)
+                {
+                    var bookCategory = new BookCategory()
+                    {
+                        Category = category,
+                        Book = book
+                    };
+                    _bookDbContext.Add(bookCategory);
+                }
+
+                _bookDbContext.Update(book);
+                return Save();
+            }
         }
+
     }
-}
 
