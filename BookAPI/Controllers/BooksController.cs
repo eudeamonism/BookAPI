@@ -13,9 +13,16 @@ namespace BookApiProject.Controllers
     public class BooksController : Controller
     {
         private IBookRepository _bookRepository;
-        public BooksController(IBookRepository bookRepository)
+        private IAuthorRepository _authorRepository;
+        private ICategoryRepository _categoryRepository;
+        private IReviewRepository _reviewRepository; 
+        public BooksController(IBookRepository bookRepository, IAuthorRepository authorRepository, 
+            ICategoryRepository categoryRepository, IReviewRepository reviewRepository)
         {
             _bookRepository = bookRepository;
+            _authorRepository = authorRepository;
+            _categoryRepository = categoryRepository;
+            _reviewRepository = reviewRepository;
         }
         //api/books
         [HttpGet]
