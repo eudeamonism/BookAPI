@@ -52,7 +52,7 @@ namespace BookApiProject.Services
             return Save();
         }
 
-        public Book DeleteBook(Book book)
+        public bool DeleteBook(Book book)
         {
             _bookDbContext.Remove(book);
             return Save();
